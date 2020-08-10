@@ -4,12 +4,23 @@
 <head>
     <meta charset="utf-8" />
     <script src="/socket.io/socket.io.js"></script>
-    <script src="./javascripts/client.js"></script>
+    <!-- <script src="./javascripts/client.js"></script> -->
 </head>
 
 <body>
     <button onClick="startRecording()">start</button>
     <button onClick="stopRecording()">stop</button>
+    <button onClick="snapshot()">スクリーンショットの取得</button>
+
+    <hr />
+    <video autoplay></video>
+    <img src="">
+    <canvas style="display:none;"></canvas>
 </body>
+
+<script src="./javascripts/client.js"></script>
+<script>
+    startProcess()
+</script>
 
 </html>

@@ -56,3 +56,56 @@ function stopRecording() {
         console.log(`Audio data is saved as ${res.filename}`)
     })
 }
+
+let localMediaStream = null
+
+let video = document.querySelector('video')
+let canvas = document.querySelector('canvas')
+let ctx = canvas.getContext('2d')
+
+function hasGetUserMedia() {
+    // Note: Opera builds are unprefixed.
+    return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia || navigator.msGetUserMedia);
+}
+
+function startProcess() {
+
+    function success(stream) {
+        // video.src = window.URL.createObjectURL(stream)
+        video.srcObject = stream
+        localMediaStream = stream
+
+        video.onloadedmetadata = function (e) {
+            // Ready to go. Do some stuff.
+        }
+    }
+
+    function fallback(e) {
+        video.src = 'fallbackvideo.webm'
+        console.log('Reeeejected!', e)
+    }
+
+    if (hasGetUserMedia()) {
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || window.navigator.mozGetUserMedia
+
+        navigator.getUserMedia({
+                video: true,
+                audio: false
+            },
+            success,
+            fallback
+        )
+
+    } else {
+        alert('getUserMedia() is not supported in your browser');
+    }
+}
+
+// スナップショットの取得
+function snapshot() {
+    if (localMediaStream) {
+        ctx.drawImage(video, 0, 0, 200, 150)
+        document.querySelector('img').src = canvas.toDataURL('image/webp')
+    }
+}
