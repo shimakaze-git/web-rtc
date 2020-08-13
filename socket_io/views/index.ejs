@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
+    integrity="sha512-v8ng/uGxkge3d1IJuEo6dJP8JViyvms0cly9pnbfRxT6/31c3dRWxIiwGnMSWwZjHKOuY3EVmijs7k1jz/9bLA=="
+    crossorigin="anonymous"></script>
+  <script src="/javascripts/client.js"></script>
+</head>
+
+<body>
+  <h1><%= title %></h1>
+  <p>Welcome to <%= title %></p>
+  <div>
+    <input type="text" id="input" />
+    <button id="send">send</button>
+  </div>
+  <div id="list"></div>
+</body>
+
+</html>

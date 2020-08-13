@@ -1,0 +1,47 @@
+version: '3.1'
+
+services:
+  express:
+    build: ./
+    container_name: 'express'
+    tty: true
+    # environment:
+    #   - NODE_ENV=production
+    #   - MONGO_DATABASE=mongodb://mongodb/myapp
+    ports:
+      - 8080:8080
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    volumes:
+      - ./:/app
+      # - ./server:/server
+      # - /home/app/nodeapp/node_modules
+
+  mongo:
+    image: mongo:latest
+    container_name: 'mongo'
+    # command:
+    #   - mongod
+    restart: always
+    environment:
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example01
+      MONGO_DATA_DIR: /data/db
+      MONGO_LOG_DIR: /dev/null
+    ports:
+      - 27017:27017
+    # volumes:
+    #   - ./db:/data/db
+    #   - ./configdb:/data/configdb
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example01
