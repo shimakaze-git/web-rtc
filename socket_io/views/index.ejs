@@ -4,7 +4,8 @@
 <head>
   <title><%= title %></title>
   <link rel='stylesheet' href='/stylesheets/style.css' />
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
     integrity="sha512-v8ng/uGxkge3d1IJuEo6dJP8JViyvms0cly9pnbfRxT6/31c3dRWxIiwGnMSWwZjHKOuY3EVmijs7k1jz/9bLA=="
     crossorigin="anonymous"></script>
@@ -13,7 +14,12 @@
 
 <body>
   <h1><%= title %></h1>
+  <h2>φ(..)メモメモ</h2>
   <p>Welcome to <%= title %></p>
+  <div>
+    <input type="button" id="create-button" value="create" />
+  </div>
+  <div id="field"></div>
   <div>
     <input type="text" id="input" />
     <button id="send">send</button>

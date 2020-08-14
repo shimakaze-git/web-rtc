@@ -40,4 +40,6 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
+// app.use(express.errorHandler());
+
 module.exports = app;

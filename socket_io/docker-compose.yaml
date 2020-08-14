@@ -1,23 +1,21 @@
 version: '3.1'
 
 services:
-  express:
-    build: ./
-    container_name: 'express'
-    tty: true
-    # environment:
-    #   - NODE_ENV=production
-    #   - MONGO_DATABASE=mongodb://mongodb/myapp
-    ports:
-      - 8080:8080
-    links:
-      - mongo
-    depends_on:
-      - mongo
-    volumes:
-      - ./:/app
-      # - ./server:/server
-      # - /home/app/nodeapp/node_modules
+  # express:
+  #   build: ./
+  #   container_name: 'express'
+  #   tty: true
+  #   environment:
+  #     - NODE_ENV=production
+  #     - MONGO_DATABASE=mongodb://mongo/myapp
+  #   ports:
+  #     - 8080:3000
+  #   links:
+  #     - mongo
+  #   depends_on:
+  #     - mongo
+  #   volumes:
+  #     - ./:/usr/src/app
 
   mongo:
     image: mongo:latest
