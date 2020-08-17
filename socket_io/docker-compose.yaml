@@ -6,8 +6,9 @@ services:
     container_name: 'nginx'
     ports:
       - '8080:80'
-    # volumes:
-    #   - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+    volumes:
+      - ./public:/var/www/html/public
+      # - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
 
   express:
     build: ./
