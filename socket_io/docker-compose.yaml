@@ -1,21 +1,29 @@
 version: '3.1'
 
 services:
-  # express:
-  #   build: ./
-  #   container_name: 'express'
-  #   tty: true
-  #   environment:
-  #     - NODE_ENV=production
-  #     - MONGO_DATABASE=mongodb://mongo/myapp
-  #   ports:
-  #     - 8080:3000
-  #   links:
-  #     - mongo
-  #   depends_on:
-  #     - mongo
-  #   volumes:
-  #     - ./:/usr/src/app
+  nginx:
+    build: 'nginx'
+    container_name: 'nginx'
+    ports:
+      - '8080:80'
+    # volumes:
+    #   - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+
+  express:
+    build: ./
+    container_name: 'express'
+    tty: true
+    environment:
+      - NODE_ENV=production
+      - MONGO_DATABASE=mongodb://mongo
+    ports:
+      - 3000:3000
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    volumes:
+      - ./:/usr/src/app
 
   mongo:
     image: mongo:latest
@@ -37,6 +45,7 @@ services:
 
   mongo-express:
     image: mongo-express
+    container_name: 'mongo-express'
     restart: always
     ports:
       - 8081:8081

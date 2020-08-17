@@ -2,6 +2,7 @@ $(function () {
     'use strict'
     // socket_io.ioのサーバに接続
     const socket = io.connect('http://' + location.host + '/');
+    console.log('socket', socket);
 
     // createイベントを受信した時、html上にメモを作成する
     socket.on('create', function (memoData) {

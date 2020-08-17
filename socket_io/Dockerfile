@@ -27,9 +27,11 @@ COPY . .
 # COPY package.json ./
 # COPY yarn.lock ./
 RUN yarn install
+RUN yarn global add supervisor
 
 # 3000番ポートを開ける
 EXPOSE 3000
 
 # アプリケーションを起動
-CMD [ "yarn", "start" ]
+# CMD [ "yarn", "start"]
+CMD supervisor -i node_modules ./bin/www
