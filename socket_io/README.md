@@ -34,7 +34,8 @@ Redis サーバの死活監視/通知および自動フェイルオーバー機�
 
 ## Cluster の仕組み
 
-[Node.js の Cluster をセットアップして、処理を並列化・高速化する](https://postd.cc/setting-up-a-node-js-cluster/)
+- [Node.js の Cluster をセットアップして、処理を並列化・高速化する](https://postd.cc/setting-up-a-node-js-cluster/)
+- [Node.js Cluster+Socket.IO+Redis によるリアルタイム通知システム](https://ameblo.jp/principia-ca/entry-11645942977.html)
 
 ![clusterの仕組み](20110513031854.png)
 
