@@ -29,3 +29,9 @@ Redis サーバの死活監視/通知および自動フェイルオーバー機�
 - Zabbix テンプレート
 - Munin プラグイン
 - Cacti プラグイン
+
+# Cluster
+
+## Cluster の仕組み
+
+![clusterの仕組み](20110513031854.png)
