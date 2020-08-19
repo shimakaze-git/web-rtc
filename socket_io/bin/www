@@ -11,6 +11,9 @@ var ioEmitter = require('socket.io-emitter');
 var socket = require('./socket_io');
 var redis = require('socket.io-redis');
 
+// クラスタ
+var cluster = require('cluster');
+
 const {
   redis: redisConf = {},
   socket: socketConf = {},
@@ -23,20 +26,6 @@ const {
 // var port = normalizePort(process.env.PORT || '3000');
 var port = normalizePort(socketConf.port);
 app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -89,10 +78,95 @@ function onError(error) {
  */
 
 function onListening() {
+  // console.log(`[${cluster.worker.id}] [PID ${cluster.worker.process.pid}] Server Started`);
+
   var addr = server.address();
   var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+
+// cluster.schedulingPolicy = cluster.SCHED_NONE; // <- Windowsのデフォルト
+// cluster.schedulingPolicy = cluster.SCHED_RR; // <- Unix系のデフォルト(非Windows)
+
+// CPU のコア (スレッド) 数を調べる
+// var numCPUs = require('os').cpus().length;
+// var max_server = numCPUs;
+
+// if (cluster.isMaster) {
+//   // マスタープロセスの処理
+//   console.log(`Master ${process.pid} is running`);
+
+//   // Worker を生成する
+//   for (var i = 0; i < max_server; ++i) {
+//     console.log(`Master : Cluster Fork ${i}`);
+//     cluster.fork();
+//   }
+
+//   cluster.on('exit', function (worker, code, signal) {
+//     console.warn(
+//       `[${worker.id}] Worker died : [PID ${worker.process.pid}] [Signal ${signal}] [Code ${code}]`
+//     );
+//     // console.log('worker ' + worker.process.pid + ' died');
+//     console.log(`worker ${worker.process.pid} died with signal`, signal);
+//     // プロセス再起動
+//     cluster.fork();
+//   });
+
+// } else {
+//   // 子プロセスの処理
+//   console.log(`[${cluster.worker.id}] [PID ${cluster.worker.process.pid}] Worker`);
+
+//   /**
+//    * Create HTTP server.
+//    */
+
+//   var server = http.createServer(app);
+
+//   /**
+//    * Listen on provided port, on all network interfaces.
+//    */
+
+//   server.listen(port);
+//   server.on('error', onError);
+//   server.on('listening', onListening);
+
+//   // socket.ioのインスタンス作成
+//   var io = require('socket.io').listen(server);
+
+//   // for different process or server
+//   io.adapter(redis({
+//     host: redisConf.host,
+//     port: redisConf.port,
+//   }))
+
+//   // socket.io-emitter
+//   const emitter = ioEmitter({
+//     host: redisConf.host,
+//     port: redisConf.port,
+//   })
+
+//   // subscriber関連のmethodsを登録
+//   const subscriber = require('./subscriber')
+//   subscriber.register(emitter)
+
+//   // クライアントから接続があった時
+//   io.sockets.on('connection', socket);
+// }
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
 // socket.ioのインスタンス作成
 var io = require('socket.io').listen(server);
