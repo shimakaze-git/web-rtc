@@ -105,8 +105,8 @@ $(function () {
         });
     };
 
-    // サーバからmessageイベントが送信されたとき
-    socket.on('message', function (data) {
+    // サーバからmessage:receiveイベントが送信されたとき
+    socket.on('message:receive', function (data) {
         console.log('data', data)
         $('#list').prepend($('<div/>').text(data.text))
     })
@@ -116,10 +116,11 @@ $(function () {
         var text = $('#input').val()
         if (text !== '') {
             //サーバにテキストを送信
-            socket.emit('message', {
+            // message
+            socket.emit('message:publisher', {
                 text: text
             })
-            $('#list').prepend($('<div/>').text(text))
+            // $('#list').prepend($('<div/>').text(text))
             $('#input').val('')
         }
     })

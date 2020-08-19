@@ -1,5 +1,7 @@
 const Memo = require('./mongo').Memo;
 
+// function Publisher
+
 module.exports = function socket(socket) {
 
     // Memo
@@ -91,15 +93,19 @@ module.exports = function socket(socket) {
         });
     });
 
-    // クライアントからmessageイベントを受信した時
-    // socket.on('message', function (data) {
-    //     // 念の為dataの値が正しいチェック
-    //     console.log(data, typeof data.text);
-    //     if (data && typeof data.text === 'string') {
-    //         // メッセージを投げたクライアント以外全てのクライアントにメッセージを送信する
-    //         socket.broadcast.json.emit('message', {
-    //             text: data.text,
-    //         });
-    //     }
+    socket.on('disconnect', function (data) {
+        console.log('socket disconnected!!');
+    })
+
+
+    // const socketControllerPaths = glob.sync(`${process.cwd()}/socket/*.js`);
+
+    // load socket methods
+    // socketControllerPaths.forEach(socketControllerPath => {
+    //     require(socketControllerPath).register(socket);
     // });
+
+    // publisher関連のmethodsを登録
+    const publisher = require('./publisher');
+    publisher.register(socket)
 };

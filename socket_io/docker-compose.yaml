@@ -19,10 +19,12 @@ services:
     environment:
       - NODE_ENV=production
       - MONGO_DATABASE=mongodb://mongo
+      # - REDIS_HOST=127.0.0.1
     ports:
       - 3000:3000
     links:
       - mongo
+      - redis
     depends_on:
       - mongo
     volumes:
@@ -55,3 +57,29 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example01
+
+  redis:
+    image: redis
+    container_name: 'redis'
+    ports:
+      - 6379:6379
+
+  redis-slave:
+    image: redis
+    container_name: 'redis-slave'
+    ports:
+      - 6479:6379
+    links:
+      - redis
+    command: redis-server --slaveof redis 6379
+    # command: redis-server --slaveof 0.0.0.0 6379
+
+  sentinel:
+    build: sentinel
+    container_name: 'sentinel'
+    environment:
+      SENTINEL_DOWN_AFTER: 5000
+      SENTINEL_FAILOVER: 5000
+    links:
+      - redis
+      - redis-slave
