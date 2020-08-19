@@ -73,13 +73,3 @@ services:
       - redis
     command: redis-server --slaveof redis 6379
     # command: redis-server --slaveof 0.0.0.0 6379
-
-  sentinel:
-    build: sentinel
-    container_name: 'sentinel'
-    environment:
-      SENTINEL_DOWN_AFTER: 5000
-      SENTINEL_FAILOVER: 5000
-    links:
-      - redis
-      - redis-slave
