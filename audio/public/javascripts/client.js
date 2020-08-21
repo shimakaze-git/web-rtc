@@ -1,3 +1,6 @@
+// クロスブラウザ定義
+// navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
 const socket = io.connect()
 let processor = null
 let localstream = null
@@ -16,6 +19,22 @@ let length = 0
 // AudioContextはすべての音声の再生を管理
 let context = null
 
+// バッファーサイズ
+let bufferSize = 1024
+
+// 録画するかどうかのフラグ
+let recordingFlg = false
+
+// 録音データ
+let audioData = []
+
+// キャンバス
+let canvasElm = document.getElementById('canvas')
+let canvasContext = canvasElm.getContext('2d')
+
+// 音声解析
+let audioAnalyser = null
+
 function send_pcm(voice) {
     // socket.emit('send_pcm', voice.buffer)
 }
@@ -28,6 +47,99 @@ function availableData(arr) {
     return b;
 }
 
+// 解析用処理
+function analyseVoice() {
+    let fsDivN = context.sampleRate / audioAnalyser.fftSize;
+    let spectrums = new Uint8Array(audioAnalyser.frequencyBinCount);
+
+    audioAnalyser.getByteFrequencyData(spectrums);
+    canvasContext.clearRect(0, 0, canvasElm.width, canvasElm.height);
+
+    canvasContext.beginPath();
+
+    for (let i = 0, len = spectrums.length; i < len; i++) {
+        // canvasにおさまるように線を描画
+        let x = (i / len) * canvasElm.width;
+        let y = (1 - (spectrums[i] / 255)) * canvasElm.height;
+
+        if (i === 0) {
+            canvasContext.moveTo(x, y);
+        } else {
+            canvasContext.lineTo(x, y);
+        }
+
+        let f = Math.floor(i * fsDivN);
+        // index -> frequency;
+
+        // 500 Hz単位にy軸の線とラベル出力
+        if ((f % 500) === 0) {
+            let text = (f < 1000) ? (f + ' Hz') : ((f / 1000) + ' kHz');
+            // Draw grid (X)
+            canvasContext.fillRect(x, 0, 1, canvasElm.height);
+            // Draw text (X)
+            canvasContext.fillText(text, x, canvasElm.height);
+        }
+    }
+
+    canvasContext.stroke();
+
+    // x軸の線とラベル出力
+    let textYs = ['1.00', '0.50', '0.00'];
+    for (var i = 0, len = textYs.length; i < len; i++) {
+        let text = textYs[i];
+        let gy = (1 - parseFloat(text)) * canvasElm.height;
+        // Draw grid (Y)
+        canvasContext.fillRect(0, gy, canvasElm.width, 1);
+        // Draw text (Y)
+        canvasContext.fillText(text, 0, gy);
+    }
+}
+
+// 録音バッファ作成（録音中自動で繰り返し呼び出される）
+let onAudioProcess = function (e) {
+    if (!recordingFlg) return;
+
+    // 音声データ
+    let inputdata = e.inputBuffer.getChannelData(0);
+
+    if (!num) {
+        // バッファに格納されたPCMデータのチャンネルの数をintegerで返す
+        num = e.inputBuffer.numberOfChannels;
+        floatData = new Array(num);
+
+        for (var i = 0; i < num; i++) {
+            floatData[i] = [];
+        }
+        sampleRate = e.inputBuffer.sampleRate;
+    }
+
+    // let float32Array = e.inputBuffer.getChannelData(0);
+    let float32Array = inputdata
+    if (availableData(float32Array)) {
+        duration += e.inputBuffer.duration;
+        length += e.inputBuffer.length;
+
+        for (var i = 0; i < num; i++) {
+            float32Array = e.inputBuffer.getChannelData(i);
+            Array.prototype.push.apply(floatData[i], float32Array);
+        }
+    }
+
+    // 音声データを送る
+    send_pcm(inputdata)
+
+    var bufferData = new Float32Array(bufferSize);
+    for (var i = 0; i < bufferSize; i++) {
+        bufferData[i] = inputdata[i];
+    }
+    audioData.push(bufferData);
+
+    // console.log('audioData', audioData)
+
+    // 波形を解析
+    analyseVoice()
+}
+
 function handleSuccess(stream) {
     console.log('stream')
 
@@ -35,43 +147,21 @@ function handleSuccess(stream) {
 
     // var source = context.createBufferSource();
     const input = context.createMediaStreamSource(stream);
-    processor = context.createScriptProcessor(1024, 1, 1);
+    processor = context.createScriptProcessor(bufferSize, 1, 1);
 
     // window.dotnsf_hack_for_mozzila = input;
     input.connect(processor)
     // processor.connect(context.destination)
 
-    processor.onaudioprocess = function (e) {
-        // 音声データ
-        let inputdata = e.inputBuffer.getChannelData(0);
-
-        if (!num) {
-            // バッファに格納されたPCMデータのチャンネルの数をintegerで返す
-            num = e.inputBuffer.numberOfChannels;
-            floatData = new Array(num);
-
-            for (var i = 0; i < num; i++) {
-                floatData[i] = [];
-            }
-            sampleRate = e.inputBuffer.sampleRate;
-        }
-
-        // let float32Array = e.inputBuffer.getChannelData(0);
-        let float32Array = inputdata
-        if (availableData(float32Array)) {
-            duration += e.inputBuffer.duration;
-            length += e.inputBuffer.length;
-
-            for (var i = 0; i < num; i++) {
-                float32Array = e.inputBuffer.getChannelData(i);
-                Array.prototype.push.apply(floatData[i], float32Array);
-            }
-        }
-
-        // 音声データを送る
-        send_pcm(inputdata)
-    }
+    processor.onaudioprocess = onAudioProcess;
     processor.connect(context.destination);
+
+    // 音声解析関連
+    audioAnalyser = context.createAnalyser();
+    audioAnalyser.fftSize = 2048;
+    frequencyData = new Uint8Array(audioAnalyser.frequencyBinCount);
+    timeDomainData = new Uint8Array(audioAnalyser.frequencyBinCount);
+    input.connect(audioAnalyser);
 }
 
 function startRecording() {
@@ -89,6 +179,7 @@ function startRecording() {
         'sampleRate': context.sampleRate
     })
 
+    recordingFlg = true
     // getUserMedia を使用してマイクにアクセスします。
 
     // アクセス後は processor.onaudioprocess
