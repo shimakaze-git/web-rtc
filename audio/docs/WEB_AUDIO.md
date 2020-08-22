@@ -17,3 +17,30 @@ AudioContext.
 
 [ Source ] --> [ AudioNode ] --> [ Destination ]
 ```
+
+# 音の再生
+
+はじめに、Source と Destination を直接つなげて、音を再生する。
+Source では、WAV、MP3、AAC、OGG などの音声ファイルがサポートされており、ブラウザごとにサポートする音声フォーマットは異なります。
+
+```
+AudioContext.
+
+[ Source ] --> [ Destination ]
+```
+
+[play.html](./src/play.html)
+
+# 音のボリューム変更
+
+# 音のフェードイン・フェードアウト
+
+# 音のフィルタ適用
+
+# 単音の生成
+
+# 音のグラフのプロット
+
+# 三角波・矩形波・鋸波
+
+# クラス一覧
