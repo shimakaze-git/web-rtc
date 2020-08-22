@@ -1,0 +1,52 @@
+<script type="text/javascript">
+    // AudioContextの生成
+    const context = new AudioContext()
+
+    // サウンドの読み込み
+    const loadSound = (url) => {
+        return new Promise((resolve) => {
+            // リクエストの生成
+            const request = new XMLHttpRequest()
+            request.open('GET', url, true)
+            request.responseType = 'arraybuffer'
+
+            // 読み込み完了時に呼ばれる
+            request.onload = () => {
+                context.decodeAudioData(request.response, (buffer) => {
+                    resolve(buffer)
+                })
+            }
+            request.send()
+        })
+    }
+
+    // サウンドの再生
+    const playSound = (buffer) => {
+        // Source
+        const source = context.createBufferSource()
+        source.buffer = buffer
+
+        // GainNode
+        // const gainNode = context.createGain()
+        // gainNode.gain.value = 0.1 // ボリュームを小さく
+        // source.connect(gainNode)
+
+        // Destination
+        // gainNode.connect(context.destination)
+
+        // Destination
+        source.connect(context.destination)
+
+        // Sourceの再生
+        source.start(0)
+    }
+
+    // メイン
+    (async () => {
+        // サウンドの読み込み
+        const buffer = await loadSound('sample.mp3')
+
+        // サウンドの再生
+        playSound()
+    })().catch((err) => console.error(err))
+</script>

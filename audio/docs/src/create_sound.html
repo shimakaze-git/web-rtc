@@ -1,0 +1,41 @@
+<script type="text/javascript">
+    // AudioContextの生成
+    const context = new AudioContext()
+
+    // サウンドの生成
+    const createSound = (func, duration) => {
+        let sampleRate = context.sampleRate // サンプリングレート
+        let dt = 1 / sampleRate // 時間刻み
+        let buffer = context.createBuffer(1, sampleRate * duration, sampleRate)
+        let data = buffer.getChannelData(0) // バッファ配列の生成
+        for (let i = 0; i < data.length; i++) {
+            data[i] = func(dt * i)
+        }
+        return buffer
+    }
+
+    // サウンドの再生
+    const playSound = (buffer) => {
+        // Source
+        const source = context.createBufferSource()
+        source.buffer = buffer
+
+        // Destination
+        source.connect(context.destination)
+
+        // Sourceの再生
+        source.start(0)
+    }
+
+    // メイン
+    (async () => {
+        // サウンドの生成
+        let func = (t) => {
+            return Math.sin(2 * Math.PI * 440 * t)
+        }
+        const buffer = createSound(func, 10)
+
+        // サウンドの再生
+        playSound(buffer)
+    })().catch((err) => console.error(err));
+</script>
