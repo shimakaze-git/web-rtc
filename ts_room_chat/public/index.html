@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <title>websocket-chat</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h1>WebSocket-Chat</h1>
+    <form class="form-inline">
+
+      <div class="form-group">
+        <label class="roomLabel" for="rooms">部屋：</label>
+        <select class="form-control" id="rooms">
+          <option value="room01">部屋01</option>
+          <option value="room02">部屋02</option>
+        </select>
+        <label for="msgForm">名前：</label>
+        <input type="text" class="form-control" id="msgForm">
+      </div>
+      <button type="submit" class="btn btn-primary" id="sendButton">入室</button>
+
+    </form>
+    <div id="chatLogs">
+      <p>=====チャットログ=====</p>
+    </div>
+    <div id="fortune">
+      <p>======今日の運勢======</p>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    // io.connect()」使用時には、デフォルトで「/」という名前空間を持つWebSocketコネクションが生成される
+    // const socket = io.connect();
+    console.log('location', location)
+
+    let chat = io('http://' + location.host + '/chat');
+    let fortune = io('http://' + location.host + '/fortune');
+    // C02. ソケットへの接続
+
+    let isEnter = false;
+    let name = '';
+
+    chat.on("server_to_client", function (data) {
+      console.log('data', data)
+      appendMsg(data.message)
+    });
+
+    fortune.on("server_to_client", function (data) {
+      appendFortune(data.message)
+    });
+
+    function appendMsg(text) {
+      $("#chatLogs").append("<div>" + text + "</div>");
+    }
+
+    function appendFortune(text) {
+      $("#fortune").append("<div>" + text + "</div>");
+    }
+
+    $("form").submit(function (e) {
+      let message = $("#msgForm").val();
+      let selectRoom = $("#rooms").val();
+
+      $("#msgForm").val('');
+
+      if (isEnter) {
+        message = "[" + name + "]: " + message;
+
+        // C03. client_to_serverイベント・データを送信する
+        chat.emit("client_to_server", {
+          message: message
+        });
+      } else {
+        name = message;
+        let entryMessage = name + "さんが入室しました。";
+
+        chat.emit("client_to_server_join", {
+          message: selectRoom
+        });
+
+        chat.emit('client_to_server_personal', {
+          author: name
+        })
+
+        // C05. client_to_server_broadcastイベント・データを送信する
+        chat.emit("client_to_server_broadcast", {
+          message: entryMessage
+        });
+        changeLabel();
+      }
+
+      // $("#msgForm").val('');
+      // socket.emit("client_to_server", {
+      //   message: message
+      // });
+
+      e.preventDefault();
+    });
+
+    function changeLabel() {
+      $("label").text("メッセージ：");
+      $("button").text("送信");
+      isEnter = true;
+    }
+  </script>
+</body>
+
+</html>
